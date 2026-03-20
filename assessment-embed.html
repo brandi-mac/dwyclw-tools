@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Self-Assessment | Do What You Can Live With</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(170deg, #453832 0%, #5A4A42 50%, #453832 100%);
+    color: #FAF8F5;
+    min-height: 100vh;
+    padding: 40px 20px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 600px; margin: 0 auto; }
+  .header { text-align: center; margin-bottom: 36px; }
+  .header .label {
+    font-size: 11px; font-weight: 700; color: #D4956E;
+    letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;
+  }
+  .header h2 {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: clamp(22px, 4vw, 32px); font-weight: 700;
+    color: #FAF8F5; line-height: 1.3; margin-bottom: 10px;
+  }
+  .header p {
+    font-size: 15px; color: rgba(250,248,245,0.6);
+    max-width: 460px; margin: 0 auto;
+  }
+
+  /* Progress */
+  .progress { display: flex; gap: 6px; margin-bottom: 28px; }
+  .progress-bar {
+    flex: 1; height: 4px; border-radius: 2px;
+    background: rgba(250,248,245,0.12); transition: background 0.3s;
+  }
+  .progress-bar.active { background: #D4956E; }
+
+  .step-label {
+    font-size: 12px; font-weight: 700;
+    color: rgba(250,248,245,0.4);
+    letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px;
+  }
+  .question {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: 20px; font-weight: 400; line-height: 1.4;
+    color: #FAF8F5; margin-bottom: 24px;
+  }
+
+  /* Options */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    padding: 16px 20px; border-radius: 12px; text-align: left;
+    background: rgba(250,248,245,0.04);
+    border: 1.5px solid rgba(250,248,245,0.1);
+    color: rgba(250,248,245,0.8);
+    font-family: 'Nunito', sans-serif; font-size: 15px;
+    cursor: pointer; transition: all 0.2s; line-height: 1.4;
+  }
+  .option:hover { border-color: rgba(212,149,110,0.4); background: rgba(212,149,110,0.08); }
+  .option.selected {
+    background: rgba(212,149,110,0.15);
+    border-color: #D4956E;
+    color: #FAF8F5;
+  }
+
+  /* Next button */
+  .next-btn {
+    margin-top: 24px; padding: 14px 40px; border-radius: 12px;
+    border: none; font-size: 15px; font-weight: 700;
+    font-family: 'Nunito', sans-serif; cursor: pointer;
+    transition: all 0.3s;
+  }
+  .next-btn.enabled {
+    background: linear-gradient(135deg, #D4956E, #C67D5C);
+    color: #FAF8F5; box-shadow: 0 3px 14px rgba(212,149,110,0.3);
+  }
+  .next-btn.enabled:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212,149,110,0.4); }
+  .next-btn.disabled {
+    background: rgba(250,248,245,0.08); color: rgba(250,248,245,0.25);
+    cursor: default;
+  }
+
+  /* Result */
+  .result { text-align: center; }
+  .result-icon {
+    width: 72px; height: 72px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px; font-size: 32px;
+  }
+  .result h3 {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: 28px; font-weight: 700; margin-bottom: 8px;
+  }
+  .result .desc {
+    font-size: 15px; color: rgba(250,248,245,0.75);
+    line-height: 1.7; max-width: 520px; margin: 0 auto 28px;
+  }
+
+  /* Book placement */
+  .book-card {
+    background: rgba(250,248,245,0.05);
+    border: 1px solid rgba(250,248,245,0.1);
+    border-radius: 16px; padding: 24px;
+    display: flex; gap: 20px; align-items: center;
+    text-align: left; margin-bottom: 24px;
+  }
+  .book-cover {
+    width: 80px; min-width: 80px; height: 110px; border-radius: 6px;
+    background: linear-gradient(135deg, #6B7B6E, #D4956E);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 4px 4px 12px rgba(0,0,0,0.3);
+  }
+  .book-cover span {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: 9px; color: #FAF8F5; text-align: center;
+    padding: 8px; line-height: 1.3; font-weight: 700;
+  }
+  .book-label {
+    font-size: 11px; font-weight: 700; color: #D4956E;
+    letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px;
+  }
+  .book-line {
+    font-size: 14px; color: rgba(250,248,245,0.8);
+    line-height: 1.6; margin-bottom: 10px;
+  }
+  .book-link {
+    font-size: 13px; font-weight: 700; color: #D4956E;
+    text-decoration: none; cursor: pointer;
+  }
+
+  /* Email gate */
+  .email-gate {
+    background: rgba(198,125,92,0.12);
+    border: 1px solid rgba(198,125,92,0.25);
+    border-radius: 16px; padding: 28px; text-align: center;
+    margin-bottom: 20px;
+  }
+  .email-gate h4 {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: 18px; color: #FAF8F5; margin-bottom: 8px;
+  }
+  .email-gate p {
+    font-size: 14px; color: rgba(250,248,245,0.7);
+    line-height: 1.6; margin-bottom: 20px;
+  }
+  .email-row {
+    display: flex; gap: 10px; max-width: 400px; margin: 0 auto;
+  }
+  .email-input {
+    flex: 1; padding: 14px 16px; border-radius: 10px;
+    border: 1px solid rgba(250,248,245,0.15);
+    background: rgba(250,248,245,0.06);
+    color: #FAF8F5; font-family: 'Nunito', sans-serif;
+    font-size: 14px; outline: none;
+  }
+  .email-input::placeholder { color: rgba(250,248,245,0.3); }
+  .email-btn {
+    padding: 14px 24px; border-radius: 10px; border: none;
+    background: linear-gradient(135deg, #D4956E, #C67D5C);
+    color: #FAF8F5; font-family: 'Nunito', sans-serif;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 3px 12px rgba(212,149,110,0.35);
+    white-space: nowrap;
+  }
+  .email-note {
+    font-size: 11px; color: rgba(250,248,245,0.3); margin-top: 12px;
+  }
+
+  /* Success */
+  .success-box {
+    background: rgba(90,122,94,0.2);
+    border: 1px solid rgba(90,122,94,0.4);
+    border-radius: 16px; padding: 24px; text-align: center;
+    margin-bottom: 20px;
+  }
+  .success-box h4 {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: 18px; color: #FAF8F5; margin: 8px 0;
+  }
+
+  .free-note {
+    font-size: 12px; color: rgba(250,248,245,0.4); text-align: center;
+  }
+  .free-note a { color: #D4956E; text-decoration: none; }
+
+  .retake {
+    background: none; border: none; font-family: 'Nunito', sans-serif;
+    font-size: 13px; color: rgba(250,248,245,0.35);
+    cursor: pointer; text-decoration: underline;
+    margin-top: 16px;
+  }
+
+  /* Animations */
+  .fade-in {
+    animation: fadeUp 0.5s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 500px) {
+    body { padding: 24px 16px; }
+    .email-row { flex-direction: column; }
+    .book-card { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container" id="app"></div>
+
+<script>
+const questions = [
+  { q: "How would you describe your emotional state most days?", opts: [
+    { text: "I'm in crisis. I can barely function.", score: 1 },
+    { text: "I'm exhausted and going through the motions.", score: 2 },
+    { text: "I have hard days, but I'm finding some stability.", score: 3 },
+    { text: "I'm in a steady place, even when things get difficult.", score: 4 },
+  ]},
+  { q: "How clear are you on what you can and cannot control?", opts: [
+    { text: "I feel responsible for everything that happens to them.", score: 1 },
+    { text: "I know I can't control it, but I act like I can.", score: 2 },
+    { text: "I'm learning to separate their choices from mine.", score: 3 },
+    { text: "I understand my role clearly and act from that clarity.", score: 4 },
+  ]},
+  { q: "What does your support system look like?", opts: [
+    { text: "I'm doing this completely alone.", score: 1 },
+    { text: "I have people, but no one who really understands.", score: 2 },
+    { text: "I have at least one person I can be honest with.", score: 3 },
+    { text: "I have solid support and I use it regularly.", score: 4 },
+  ]},
+  { q: "How are you taking care of yourself through this?", opts: [
+    { text: "I'm not. I don't have time or energy for myself.", score: 1 },
+    { text: "I know I should, but I feel selfish when I try.", score: 2 },
+    { text: "I'm starting to prioritize small things for myself.", score: 3 },
+    { text: "I've accepted that my wellbeing matters and I act on it.", score: 4 },
+  ]},
+];
+
+const stages = [
+  { range:[4,7], title:"The Storm", icon:"\u26C8\uFE0F", color:"#C67D5C",
+    desc:"You're in the thick of it right now, and everything feels like survival. That's not weakness; that's the reality of loving someone through addiction with no roadmap. You need immediate support, practical tools, and someone to tell you: this is not your fault.",
+    bookLine:"Start with Chapter 1: When the Call Comes. It was written for exactly where you are.",
+    next:["Crisis Communication Scripts","Boundaries Starter Guide","Treatment Navigator"] },
+  { range:[8,11], title:"The Fog", icon:"\uD83C\uDF2B\uFE0F", color:"#A3917B",
+    desc:"You've been in this long enough to be exhausted but not long enough to see clearly. You're caught between what you've been told to do and what your heart says. This is where most families get stuck, and it's exactly where real change begins.",
+    bookLine:"The OAR Compass chapter will give you a framework to cut through the noise.",
+    next:["OAR Compass Framework","Boundary Evolution Workshop","Weekly Navigation Emails"] },
+  { range:[12,14], title:"The Clearing", icon:"\uD83C\uDF24\uFE0F", color:"#6B7B6E",
+    desc:"You're finding your footing. You're beginning to understand that your healing matters too. You're ready for deeper work.",
+    bookLine:"The Crossroads Model in Chapter 7 was built for this stage.",
+    next:["Advanced Boundaries","Crossroads Model Deep Dive","The Book"] },
+  { range:[15,16], title:"The Navigation", icon:"\uD83E\uDDED", color:"#5A7A5E",
+    desc:"You understand that boundaries are acts of love. You're navigating, not just surviving. Your experience could help others earlier in this journey.",
+    bookLine:"The Parallel Intervention Model chapter will resonate. You're ready to help others.",
+    next:["Mentor Training","Share Your Story","Professional Advocacy"] },
+];
+
+let step = 0;
+let answers = [];
+let selected = null;
+let emailSubmitted = false;
+
+function render() {
+  const app = document.getElementById('app');
+  const score = answers.reduce((s, a) => s + a, 0);
+
+  if (step < questions.length) {
+    // Question view
+    const q = questions[step];
+    app.innerHTML = `
+      <div class="fade-in">
+        <div class="header">
+          <div class="label">Free Self-Assessment</div>
+          <h2>Where Are You Right Now?</h2>
+          <p>Four questions. No judgment. A starting point.</p>
+        </div>
+        <div class="progress">
+          ${questions.map((_, i) => `<div class="progress-bar ${i <= step ? 'active' : ''}"></div>`).join('')}
+        </div>
+        <div class="step-label">Question ${step + 1} of ${questions.length}</div>
+        <div class="question">${q.q}</div>
+        <div class="options">
+          ${q.opts.map((o, i) => `
+            <div class="option ${selected === o.score ? 'selected' : ''}" onclick="selectOption(${o.score})">${o.text}</div>
+          `).join('')}
+        </div>
+        <button class="next-btn ${selected !== null ? 'enabled' : 'disabled'}" onclick="nextStep()">
+          ${step < questions.length - 1 ? 'Next \u2192' : 'See My Results'}
+        </button>
+      </div>
+    `;
+  } else {
+    // Result view
+    const stage = stages.find(s => score >= s.range[0] && score <= s.range[1]);
+    if (!stage) return;
+
+    app.innerHTML = `
+      <div class="fade-in result">
+        <div class="result-icon" style="background:${stage.color}30; border:2px solid ${stage.color};">
+          ${stage.icon}
+        </div>
+        <h3 style="color:${stage.color}">${stage.title}</h3>
+        <p class="desc">${stage.desc}</p>
+
+        <div class="book-card">
+          <div class="book-cover"><span>Do What<br>You Can<br>Live With</span></div>
+          <div>
+            <div class="book-label">Your Recommended Reading</div>
+            <div class="book-line">${stage.bookLine}</div>
+            <a class="book-link" href="#">Get the Book &rarr;</a>
+          </div>
+        </div>
+
+        ${!emailSubmitted ? `
+        <div class="email-gate">
+          <h4>Unlock Your Full Toolkit</h4>
+          <p>Free interactive tools built for families like you. Boundary Builder, Conversation Simulator, and more.</p>
+          <div class="email-row">
+            <input type="email" class="email-input" id="emailInput" placeholder="Your email" onkeydown="if(event.key==='Enter')submitEmail()">
+            <button class="email-btn" onclick="submitEmail()">Get Access</button>
+          </div>
+          <div class="email-note">No spam. Unsubscribe anytime.</div>
+        </div>
+        ` : `
+        <div class="success-box">
+          <div style="font-size:28px;">&#10003;</div>
+          <h4>You're In</h4>
+          <p style="font-size:14px; color:rgba(250,248,245,0.75);">Check your inbox for access to the full interactive toolkit.</p>
+        </div>
+        `}
+
+        <div class="free-note">
+          The <a href="#">Treatment Navigator</a> is always free, no email required.
+        </div>
+        <button class="retake" onclick="reset()">Retake Assessment</button>
+      </div>
+    `;
+  }
+}
+
+function selectOption(score) {
+  selected = score;
+  render();
+}
+
+function nextStep() {
+  if (selected === null) return;
+  answers.push(selected);
+  selected = null;
+  step++;
+  render();
+  // Scroll to top of this embed
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Also tell parent to scroll if in iframe
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'dwyclw-scroll-top' }, '*');
+  }
+}
+
+function submitEmail() {
+  const input = document.getElementById('emailInput');
+  if (input && input.value.includes('@')) {
+    emailSubmitted = true;
+    // TODO: Connect to your email provider API here
+    // Example: send to ConvertKit, Mailchimp, etc.
+    render();
+  }
+}
+
+function reset() {
+  step = 0;
+  answers = [];
+  selected = null;
+  emailSubmitted = false;
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Auto-resize iframe height for parent
+function sendHeight() {
+  if (window.parent !== window) {
+    const height = document.body.scrollHeight + 40;
+    window.parent.postMessage({ type: 'dwyclw-resize', height: height }, '*');
+  }
+}
+
+// Initial render
+render();
+
+// Watch for height changes
+const observer = new MutationObserver(sendHeight);
+observer.observe(document.getElementById('app'), { childList: true, subtree: true });
+window.addEventListener('resize', sendHeight);
+setTimeout(sendHeight, 100);
+</script>
+
+</body>
+</html>
